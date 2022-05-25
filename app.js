@@ -10,20 +10,35 @@ const port = process.env.PORT || 5000;
 // middleware
 app.use(cors());
 app.use(express.json());
-const uri = `mongodb+srv://campuslib_admin:${process.env.DB_PASS}@cluster0.gqncx.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.5p7yt.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 
 async function run() {
     try {
         await client.connect();
-        const database = client.db('campuslib');
-        const booksCollection = database.collection('books');
+        const database = client.db('Campuslib');
+        const dataCollection = database.collection('data');
+        const usersCollection = database.collection('users');
 
         // get books
-        app.get('/books', async (req, res) => {
-            const cursor = booksCollection.find({});
+        app.get('/data', async (req, res) => {
+            const cursor = dataCollection.find({});
             const result = await cursor.toArray();
+            res.json(result);
+        })
+
+        // get users
+        app.get('/users', async (req, res) => {
+            const cursor = usersCollection.find({});
+            const result = await cursor.toArray();
+            res.json(result);
+        })
+
+        // post user
+        app.post('/user_post', async (req, res) => {
+            const user = req.body;
+            const result = await usersCollection.insertOne(user);
             res.json(result);
         })
 
