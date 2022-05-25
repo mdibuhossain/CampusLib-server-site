@@ -51,7 +51,7 @@ async function run() {
 run().catch(console.dir);
 
 app.get('/', (req, res) => {
-    res.send('CampusLib running live');
+    res.send('CampusLib');
 })
 
 app.listen(port, () => {
