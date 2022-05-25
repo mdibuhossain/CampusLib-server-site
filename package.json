@@ -1,11 +1,11 @@
 {
-  "name": "CampusLib-react-native-server-site",
+  "name": "CampusLib-server-site",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node app.js",
-    "start-dev": "nodemon app.js",
+    "start": "node index.js",
+    "start-dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -15,6 +15,7 @@
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.2",
-    "mongodb": "^4.2.2"
+    "mongodb": "^4.2.2",
+    "nodemon": "^2.0.16"
   }
 }
