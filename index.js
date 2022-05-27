@@ -18,12 +18,28 @@ async function run() {
     try {
         await client.connect();
         const database = client.db('Campuslib');
-        const dataCollection = database.collection('data');
+        const booksCollection = database.collection('books');
+        const syllabusCollection = database.collection('syllabus');
+        const questionsCollection = database.collection('questions');
         const usersCollection = database.collection('users');
 
         // get books
-        app.get('/data', async (req, res) => {
-            const cursor = dataCollection.find({});
+        app.get('/books', async (req, res) => {
+            const cursor = booksCollection.find({});
+            const result = await cursor.toArray();
+            res.json(result);
+        })
+
+        // get questions
+        app.get('/questions', async (req, res) => {
+            const cursor = questionsCollection.find({});
+            const result = await cursor.toArray();
+            res.json(result);
+        })
+
+        // get syllabus
+        app.get('/syllabus', async (req, res) => {
+            const cursor = syllabusCollection.find({});
             const result = await cursor.toArray();
             res.json(result);
         })
