@@ -58,6 +58,27 @@ async function run() {
             res.json(result);
         })
 
+        // post book
+        app.post('/post_book', async (req, res) => {
+            const book = req.body;
+            const result = await booksCollection.insertOne(book);
+            res.json(result)
+        })
+
+        // post question
+        app.post('/post_question', async (req, res) => {
+            const question = req.body;
+            const result = await questionsCollection.insertOne(question);
+            res.json(result)
+        })
+
+        // post syllabus
+        app.post('/post_syllabus', async (req, res) => {
+            const syllabus = req.body;
+            const result = await syllabusCollection.insertOne(syllabus);
+            res.json(result)
+        })
+
     }
     finally {
         // Ensures that the client will close when you finish/error
