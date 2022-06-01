@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 require('dotenv').config();
 
 const app = express();
@@ -77,6 +77,30 @@ async function run() {
             const syllabus = req.body;
             const result = await syllabusCollection.insertOne(syllabus);
             res.json(result)
+        })
+
+        // delete book
+        app.delete('/book/delete/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await booksCollection.deleteOne(query);
+            res.json(result);
+        })
+
+        // delete question
+        app.delete('/question/delete/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await questionsCollection.deleteOne(query);
+            res.json(result);
+        })
+
+        // delete syllabus
+        app.delete('/syllabus/delete/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await syllabusCollection.deleteOne(query);
+            res.json(result);
         })
 
     }
