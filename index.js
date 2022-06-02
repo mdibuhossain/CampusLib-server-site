@@ -51,6 +51,17 @@ async function run() {
             res.json(result);
         })
 
+        // Check admin
+        app.get('/user/checkadmin/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const result = await usersCollection.findOne(query);
+            let isAdmin = false;
+            if (result?.role === 'admin')
+                isAdmin = true;
+            res.json({ admin: isAdmin })
+        })
+
         // post user
         app.post('/user_post', async (req, res) => {
             const user = req.body;
