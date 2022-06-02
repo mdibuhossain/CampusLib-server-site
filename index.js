@@ -100,6 +100,35 @@ async function run() {
             res.json(result);
         })
 
+        // change content status
+        app.put('/book/status/:id', async (req, res) => {
+            const id = req.params.id;
+            const status = req.body;
+            const query = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const update = { $set: { status: status.status } };
+            const result = await booksCollection.updateOne(query, update, options);
+            res.json(result);
+        })
+        app.put('/question/status/:id', async (req, res) => {
+            const id = req.params.id;
+            const status = req.body;
+            const query = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const update = { $set: { status: status.status } };
+            const result = await questionsCollection.updateOne(query, update, options);
+            res.json(result);
+        })
+        app.put('/syllabus/status/:id', async (req, res) => {
+            const id = req.params.id;
+            const status = req.body;
+            const query = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const update = { $set: { status: status.status } };
+            const result = await syllabusCollection.updateOne(query, update, options);
+            res.json(result);
+        })
+
         // delete book
         app.delete('/book/delete/:id', async (req, res) => {
             const id = req.params.id;
