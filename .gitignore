@@ -1,4 +1,6 @@
 .env
 .env.local
 
+campuslb-firebase-adminsdk.json
+
 /node_modules
