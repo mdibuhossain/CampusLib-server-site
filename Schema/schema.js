@@ -16,12 +16,12 @@ const Syllabus = require('../Models/Syllabus_Model')
 // GraphQL Schema template
 const GraphQLSchemaTemplate = {
     _id: { type: GraphQLID },
-    book_name: { type: GraphQLNonNull(GraphQLString) },
-    download_link: { type: GraphQLNonNull(GraphQLString) },
-    categories: { type: GraphQLNonNull(GraphQLString) },
-    sub_categories: { type: GraphQLNonNull(GraphQLString) },
-    added_by: { type: GraphQLNonNull(GraphQLString) },
-    status: { type: GraphQLNonNull(GraphQLBoolean) }
+    book_name: { type: GraphQLString },
+    download_link: { type: GraphQLString },
+    categories: { type: GraphQLString },
+    sub_categories: { type: GraphQLString },
+    added_by: { type: GraphQLString },
+    status: { type: GraphQLBoolean }
 }
 const GraphQLSchemaTemplateForBook = {
     ...GraphQLSchemaTemplate,
@@ -115,6 +115,7 @@ const RootQuery = new GraphQLObjectType({
 const mutation = new GraphQLObjectType({
     name: 'Mutation',
     fields: {
+        // Adding or creating
         addBook: {
             type: BookType,
             args: { ...GraphQLSchemaTemplateForBook },
@@ -146,7 +147,57 @@ const mutation = new GraphQLObjectType({
                 const newUser = new User({ ...args })
                 return newUser.save()
             }
-        }
+        },
+        // deleting or remove
+        deleteBook: {
+            type: BookType,
+            args: { _id: { type: GraphQLNonNull(GraphQLID) } },
+            resolve(parent, args) {
+                return Book.findByIdAndRemove(args._id)
+            }
+        },
+        deleteQuestion: {
+            type: QuestionType,
+            args: { _id: { type: GraphQLNonNull(GraphQLID) } },
+            resolve(parent, args) {
+                return Question.findByIdAndRemove(args._id)
+            }
+        },
+        deleteSyllabus: {
+            type: SyllabusType,
+            args: { _id: { type: GraphQLNonNull(GraphQLID) } },
+            resolve(parent, args) {
+                return Syllabus.findByIdAndRemove(args._id)
+            }
+        },
+        // Updating or editing
+        editBook: {
+            type: BookType,
+            args: { ...GraphQLSchemaTemplateForBook },
+            resolve(parent, args) {
+                const tmp = { ...args }
+                delete tmp._id
+                return Book.findByIdAndUpdate(args._id, { $set: tmp }, { new: true })
+            }
+        },
+        editQuestion: {
+            type: QuestionType,
+            args: { ...GraphQLSchemaTemplate },
+            resolve(parent, args) {
+                const tmp = { ...args }
+                delete tmp._id
+                return Question.findByIdAndUpdate(args._id, { $set: tmp }, { new: true })
+            }
+        },
+        editSyllabus: {
+            type: SyllabusType,
+            args: { ...GraphQLSchemaTemplate },
+            resolve(parent, args) {
+                const tmp = { ...args }
+                delete tmp._id
+                return Syllabus.findByIdAndUpdate(args._id, { $set: tmp }, { new: true })
+            }
+        },
     }
 })
 
