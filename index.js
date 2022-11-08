@@ -9,9 +9,12 @@ const {
   GraphQLString,
 } = require('graphql')
 const schema = require('./Schema/schema')
+const { verifyToken } = require('./MiddleWare/isAuth')
 
 
 const app = express()
+
+app.use(verifyToken)
 connectDB()
 
 
