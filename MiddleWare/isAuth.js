@@ -1,3 +1,5 @@
+const admin = require('firebase-admin')
+
 const verifyToken = async (req, res, next) => {
     const token = req.get('authorization')
     if (!token) {
