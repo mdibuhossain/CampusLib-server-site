@@ -1,26 +1,14 @@
-const admin = require('firebase-admin')
+const admin = require("firebase-admin");
 
-const verifyToken = async (req, res, next) => {
-    const token = req.get('authorization')
-    if (!token) {
-        req.isAuth = false
-        return next()
-    }
-    let decodedToken
+const verifyToken = async (token) => {
+    let decodedToken;
     try {
-        const finalToken = token.split(' ')[1]
-        decodedToken = await admin.auth().verifyToken(finalToken)
+        const finalToken = token?.split(" ")[1];
+        decodedToken = await admin?.auth().verifyIdToken(finalToken);
+        return decodedToken?.email
     } catch (err) {
-        req.isAuth = false;
-        return next()
+        return ''
     }
-    if (!decodedToken) {
-        req.isAuth = false
-        return next()
-    }
-    req.isAuth = true
-    req.decodeEmail = decodedToken.email
-    next()
-}
+};
 
-module.exports = { verifyToken }
+module.exports = { verifyToken };
