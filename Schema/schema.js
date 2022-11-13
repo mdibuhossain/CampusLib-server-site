@@ -161,7 +161,11 @@ const mutation = new GraphQLObjectType({
         addBook: {
             type: BookType,
             args: { ...GraphQLSchemaTemplateForBook, ...GraphQLSchemaAuth },
-            resolve(_, args) {
+            async resolve(_, args) {
+                const decodedEmail = await verifyToken(args?.token);
+                if (!decodedEmail) {
+                    throw new Error("Unauthenticated!");
+                }
                 const newBook = new Book({ ...args });
                 return newBook.save();
             },
@@ -169,7 +173,11 @@ const mutation = new GraphQLObjectType({
         addQuestion: {
             type: QuestionType,
             args: { ...GraphQLSchemaTemplate, ...GraphQLSchemaAuth },
-            resolve(_, args) {
+            async resolve(_, args) {
+                const decodedEmail = await verifyToken(args?.token);
+                if (!decodedEmail) {
+                    throw new Error("Unauthenticated!");
+                }
                 const newQuestion = new Question({ ...args });
                 return newQuestion.save();
             },
@@ -177,7 +185,11 @@ const mutation = new GraphQLObjectType({
         addSyllabus: {
             type: SyllabusType,
             args: { ...GraphQLSchemaTemplate, ...GraphQLSchemaAuth },
-            resolve(_, args) {
+            async resolve(_, args) {
+                const decodedEmail = await verifyToken(args?.token);
+                if (!decodedEmail) {
+                    throw new Error("Unauthenticated!");
+                }
                 const newSyllabus = new Syllabus({ ...args });
                 return newSyllabus.save();
             },
@@ -194,21 +206,33 @@ const mutation = new GraphQLObjectType({
         deleteBook: {
             type: BookType,
             args: { ...GraphQLSchemaAuth },
-            resolve(_, args) {
+            async resolve(_, args) {
+                const decodedEmail = await verifyToken(args?.token);
+                if (!decodedEmail) {
+                    throw new Error("Unauthenticated!");
+                }
                 return Book.findByIdAndRemove(args._id);
             },
         },
         deleteQuestion: {
             type: QuestionType,
             args: { ...GraphQLSchemaAuth },
-            resolve(_, args) {
+            async resolve(_, args) {
+                const decodedEmail = await verifyToken(args?.token);
+                if (!decodedEmail) {
+                    throw new Error("Unauthenticated!");
+                }
                 return Question.findByIdAndRemove(args._id);
             },
         },
         deleteSyllabus: {
             type: SyllabusType,
             args: { ...GraphQLSchemaAuth },
-            resolve(_, args) {
+            async resolve(_, args) {
+                const decodedEmail = await verifyToken(args?.token);
+                if (!decodedEmail) {
+                    throw new Error("Unauthenticated!");
+                }
                 return Syllabus.findByIdAndRemove(args._id);
             },
         },
@@ -216,7 +240,11 @@ const mutation = new GraphQLObjectType({
         editBook: {
             type: BookType,
             args: { ...GraphQLSchemaTemplateForBook, ...GraphQLSchemaAuth },
-            resolve(_, args) {
+            async resolve(_, args) {
+                const decodedEmail = await verifyToken(args?.token);
+                if (!decodedEmail) {
+                    throw new Error("Unauthenticated!");
+                }
                 const tmp = { ...args };
                 delete tmp._id;
                 return Book.findByIdAndUpdate(args._id, { $set: tmp }, { new: true });
@@ -225,7 +253,11 @@ const mutation = new GraphQLObjectType({
         editQuestion: {
             type: QuestionType,
             args: { ...GraphQLSchemaTemplate, ...GraphQLSchemaAuth },
-            resolve(_, args) {
+            async resolve(_, args) {
+                const decodedEmail = await verifyToken(args?.token);
+                if (!decodedEmail) {
+                    throw new Error("Unauthenticated!");
+                }
                 const tmp = { ...args };
                 delete tmp._id;
                 return Question.findByIdAndUpdate(
@@ -238,7 +270,11 @@ const mutation = new GraphQLObjectType({
         editSyllabus: {
             type: SyllabusType,
             args: { ...GraphQLSchemaTemplate, ...GraphQLSchemaAuth },
-            resolve(_, args) {
+            async resolve(_, args) {
+                const decodedEmail = await verifyToken(args?.token);
+                if (!decodedEmail) {
+                    throw new Error("Unauthenticated!");
+                }
                 const tmp = { ...args };
                 delete tmp._id;
                 return Syllabus.findByIdAndUpdate(
@@ -248,10 +284,14 @@ const mutation = new GraphQLObjectType({
                 );
             },
         },
-        createUser: {
+        addUser: {
             type: UserType,
             args: { ...GraphQLSchemaForUser },
-            resolve(_, args) {
+            async resolve(_, args) {
+                const checkUser = await User.findOne({ email: args?.email })
+                if (checkUser) {
+                    return null
+                }
                 return User.create(args);
             },
         },
@@ -280,11 +320,8 @@ const mutation = new GraphQLObjectType({
                 const checkUser = await User.findOne({ email: decodedEmail });
                 if (checkUser?.email) {
                     const editUser = await User.findById(args._id);
-                    if (
-                        checkUser?.role === "admin" &&
-                        editUser?.email === checkUser?.email
-                    ) {
-                        throw new Error("Admin can not remove themselves!");
+                    if (editUser?.email === checkUser?.email) {
+                        throw new Error("User can not update their role by themselves!");
                     } else if (editUser?.role === "admin") {
                         return User.findByIdAndUpdate(
                             args._id,
