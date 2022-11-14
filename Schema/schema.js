@@ -28,7 +28,7 @@ const GraphQLSchemaTemplate = {
 const GraphQLSchemaTemplateForBook = {
     ...GraphQLSchemaTemplate,
     author: { type: GraphQLString },
-    edition: { type: GraphQLInt },
+    edition: { type: GraphQLString },
 };
 const GraphQLSchemaForUser = {
     _id: { type: GraphQLID },
