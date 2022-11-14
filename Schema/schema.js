@@ -84,7 +84,7 @@ const RootQuery = new GraphQLObjectType({
             type: BookType,
             args: { _id: { type: GraphQLID } },
             resolve(_, args) {
-                return Book.findById(args._id);
+                return Book.findById(args?._id);
             },
         },
         getBooks: {
@@ -97,7 +97,7 @@ const RootQuery = new GraphQLObjectType({
             type: QuestionType,
             args: { _id: { type: GraphQLID } },
             resolve(_, args) {
-                return Question.findById(args._id);
+                return Question.findById(args?._id);
             },
         },
         getQuestions: {
@@ -110,7 +110,7 @@ const RootQuery = new GraphQLObjectType({
             type: SyllabusType,
             args: { _id: { type: GraphQLID } },
             resolve(_, args) {
-                return Syllabus.findById(args._id);
+                return Syllabus.findById(args?._id);
             },
         },
         getAllSyllabus: {
@@ -202,6 +202,18 @@ const mutation = new GraphQLObjectType({
                 return newUser.save();
             },
         },
+        addUser: {
+            type: UserType,
+            args: { ...GraphQLSchemaForUser },
+            async resolve(_, args) {
+                const checkUser = await User.findOne({ email: args?.email })
+                if (checkUser) {
+                    return null
+                }
+                return User.create(args);
+            },
+        },
+
         // deleting or remove
         deleteBook: {
             type: BookType,
@@ -211,7 +223,7 @@ const mutation = new GraphQLObjectType({
                 if (!decodedEmail) {
                     throw new Error("Unauthenticated!");
                 }
-                return Book.findByIdAndRemove(args._id);
+                return Book.findByIdAndRemove(args?._id);
             },
         },
         deleteQuestion: {
@@ -222,7 +234,7 @@ const mutation = new GraphQLObjectType({
                 if (!decodedEmail) {
                     throw new Error("Unauthenticated!");
                 }
-                return Question.findByIdAndRemove(args._id);
+                return Question.findByIdAndRemove(args?._id);
             },
         },
         deleteSyllabus: {
@@ -233,9 +245,10 @@ const mutation = new GraphQLObjectType({
                 if (!decodedEmail) {
                     throw new Error("Unauthenticated!");
                 }
-                return Syllabus.findByIdAndRemove(args._id);
+                return Syllabus.findByIdAndRemove(args?._id);
             },
         },
+
         // Updating or editing
         editBook: {
             type: BookType,
@@ -247,7 +260,7 @@ const mutation = new GraphQLObjectType({
                 }
                 const tmp = { ...args };
                 delete tmp._id;
-                return Book.findByIdAndUpdate(args._id, { $set: tmp }, { new: true });
+                return Book.findByIdAndUpdate(args?._id, { $set: tmp }, { new: true });
             },
         },
         editQuestion: {
@@ -261,7 +274,7 @@ const mutation = new GraphQLObjectType({
                 const tmp = { ...args };
                 delete tmp._id;
                 return Question.findByIdAndUpdate(
-                    args._id,
+                    args?._id,
                     { $set: tmp },
                     { new: true }
                 );
@@ -278,21 +291,10 @@ const mutation = new GraphQLObjectType({
                 const tmp = { ...args };
                 delete tmp._id;
                 return Syllabus.findByIdAndUpdate(
-                    args._id,
+                    args?._id,
                     { $set: tmp },
                     { new: true }
                 );
-            },
-        },
-        addUser: {
-            type: UserType,
-            args: { ...GraphQLSchemaForUser },
-            async resolve(_, args) {
-                const checkUser = await User.findOne({ email: args?.email })
-                if (checkUser) {
-                    return null
-                }
-                return User.create(args);
             },
         },
         editProfile: {
@@ -309,6 +311,54 @@ const mutation = new GraphQLObjectType({
                 )
             }
         },
+        editBookStatus: {
+            type: BookType,
+            args: { ...GraphQLSchemaAuth, status: { type: GraphQLBoolean } },
+            async resolve(_, args) {
+                const decodedEmail = await verifyToken(args?.token);
+                const adminUser = await User.findOne({ email: decodedEmail });
+                if (!decodedEmail) {
+                    throw new Error("Unauthenticated!");
+                }
+                else if (adminUser?.role === 'admin')
+                    return Book.findByIdAndUpdate(args?._id, { $set: { status: args?.status } }, { new: true })
+                else
+                    throw new Error("Unauthenticated!");
+
+            }
+        },
+        editQuestionStatus: {
+            type: QuestionType,
+            args: { ...GraphQLSchemaAuth, status: { type: GraphQLBoolean } },
+            async resolve(_, args) {
+                const decodedEmail = await verifyToken(args?.token);
+                const adminUser = await User.findOne({ email: decodedEmail });
+                if (!decodedEmail) {
+                    throw new Error("Unauthenticated!");
+                }
+                else if (adminUser?.role === 'admin')
+                    return Question.findByIdAndUpdate(args?._id, { $set: { status: args?.status } }, { new: true })
+                else
+                    throw new Error("Unauthenticated!");
+
+            }
+        },
+        editSyllabusStatus: {
+            type: SyllabusType,
+            args: { ...GraphQLSchemaAuth, status: { type: GraphQLBoolean } },
+            async resolve(_, args) {
+                const decodedEmail = await verifyToken(args?.token);
+                const adminUser = await User.findOne({ email: decodedEmail });
+                if (!decodedEmail) {
+                    throw new Error("Unauthenticated!");
+                }
+                else if (adminUser?.role === 'admin')
+                    return Syllabus.findByIdAndUpdate(args?._id, { $set: { status: args?.status } }, { new: true })
+                else
+                    throw new Error("Unauthenticated!");
+
+            }
+        },
         makeAdmin: {
             type: UserType,
             args: { ...GraphQLSchemaAuth },
@@ -319,18 +369,18 @@ const mutation = new GraphQLObjectType({
                 }
                 const checkUser = await User.findOne({ email: decodedEmail });
                 if (checkUser?.email) {
-                    const editUser = await User.findById(args._id);
+                    const editUser = await User.findById(args?._id);
                     if (editUser?.email === checkUser?.email) {
                         throw new Error("User can not update their role by themselves!");
                     } else if (editUser?.role === "admin") {
                         return User.findByIdAndUpdate(
-                            args._id,
+                            args?._id,
                             { $set: { role: "regular" } },
                             { new: true }
                         );
                     } else {
                         return User.findByIdAndUpdate(
-                            args._id,
+                            args?._id,
                             { $set: { role: "admin" } },
                             { new: true }
                         );
