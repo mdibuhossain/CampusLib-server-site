@@ -36,6 +36,7 @@ const verityToken = async (req, res, next) => {
 
 async function run() {
     try {
+        // DATABASE
         await client.connect();
         const database = client.db('Campuslib');
         const booksCollection = database.collection('books');
