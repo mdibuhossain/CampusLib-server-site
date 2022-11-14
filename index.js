@@ -39,7 +39,7 @@ async function run() {
         await client.connect();
         const database = client.db('Campuslib');
         const booksCollection = database.collection('books');
-        const syllabusCollection = database.collection('syllabus');
+        const syllabusCollection = database.collection('programs');
         const questionsCollection = database.collection('questions');
         const usersCollection = database.collection('users');
 
