@@ -75,11 +75,27 @@ const AdminCheck = new GraphQLObjectType({
         isAdmin: { type: GraphQLBoolean },
     }),
 });
+const DepartmentType = new GraphQLObjectType({
+    name: "deparment",
+    fields: () => ({
+        dept_name: { type: GraphQLList(GraphQLString) }
+    })
+})
 
 // GraphQL Query
 const RootQuery = new GraphQLObjectType({
     name: "RootQueryType",
     fields: {
+        getDepartments: {
+            type: DepartmentType,
+            async resolve(_, args) {
+                const book = await Book.find()
+                const question = await Question.find()
+                const syllabus = await Syllabus.find()
+                let dept = await [...new Set(book.map(({ categories }) => categories)), ...new Set(question.map(({ categories }) => categories)), ...new Set(syllabus.map(({ categories }) => categories))]
+                return dept
+            }
+        },
         getBook: {
             type: BookType,
             args: { _id: { type: GraphQLID } },
