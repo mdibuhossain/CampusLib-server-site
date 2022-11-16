@@ -78,7 +78,7 @@ const AdminCheck = new GraphQLObjectType({
 const DepartmentType = new GraphQLObjectType({
     name: "deparment",
     fields: () => ({
-        dept_name: { type: GraphQLList(GraphQLString) }
+        dept_name: { type: GraphQLString }
     })
 })
 
@@ -87,12 +87,12 @@ const RootQuery = new GraphQLObjectType({
     name: "RootQueryType",
     fields: {
         getDepartments: {
-            type: DepartmentType,
+            type: new GraphQLList(GraphQLString),
             async resolve(_, args) {
                 const book = await Book.find()
                 const question = await Question.find()
                 const syllabus = await Syllabus.find()
-                let dept = await [...new Set(book.map(({ categories }) => categories)), ...new Set(question.map(({ categories }) => categories)), ...new Set(syllabus.map(({ categories }) => categories))]
+                let dept = await [...new Set([...(book.map(({ categories }) => categories)), ...(question.map(({ categories }) => categories)), ...(syllabus.map(({ categories }) => categories))])]
                 return dept
             }
         },
