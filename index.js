@@ -19,7 +19,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use(
-  "/",
+  "/graphql",
   graphqlHTTP({
     schema,
     graphiql: process.env.NODE_EVN === "development",
