@@ -12,7 +12,6 @@ const Book = require("../Models/Book_Model");
 const User = require("../Models/User_Model");
 const Question = require("../Models/Question_Model");
 const Syllabus = require("../Models/Syllabus_Model");
-const { ReturnDocument } = require("mongodb");
 const { verifyToken } = require("../MiddleWare/isAuth");
 
 // GraphQL Schema template
@@ -94,9 +93,9 @@ const RootQuery = new GraphQLObjectType({
         const syllabus = await Syllabus.find();
         let dept = await [
           ...new Set([
-            ...book.map(({ categories, status }) => (status?categories:null)),
-            ...question.map(({ categories, status }) => (status?categories:null)),
-            ...syllabus.map(({ categories, status }) => (status?categories:null)),
+            ...book.map(({ categories, status }) => (status ? categories : null)),
+            ...question.map(({ categories, status }) => (status ? categories : null)),
+            ...syllabus.map(({ categories, status }) => (status ? categories : null)),
           ]),
         ];
         return dept;
@@ -323,13 +322,16 @@ const mutation = new GraphQLObjectType({
       type: UserType,
       args: { ...GraphQLSchemaForUser, ...GraphQLSchemaAuth },
       async resolve(_, args) {
-        const decodedEmail = await verifyToken(args?.token);
+        const token = args?.token;
+        delete args?.token;
+        delete args?.role;
+        const decodedEmail = await verifyToken(token);
         if (!decodedEmail) {
           throw new Error("Unauthenticated!");
         }
         return User.findOneAndUpdate(
           { email: decodedEmail },
-          { $set: { photoURL: args?.photoURL } },
+          { $set: { ...args } },
           { new: true }
         );
       },
