@@ -14,7 +14,7 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
-const PUBLIC_STATIC = './public'
+const PUBLIC_STATIC = path.join(__dirname, 'public')
 const app = express();
 
 connectDB();
