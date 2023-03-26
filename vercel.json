@@ -6,6 +6,12 @@
             "use": "@now/node"
         }
     ],
+    "crons": [
+        {
+            "path": "./",
+            "schedule": "0 10 * * *"
+        }
+    ],
     "routes": [
         {
             "src": "/(.*)",
